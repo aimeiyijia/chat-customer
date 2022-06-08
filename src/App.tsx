@@ -1,7 +1,20 @@
-import React, { useCallback } from "react"
+import React, { useCallback, useState } from "react"
+import LoginModel from './login'
 // 引入组件
 import Chat, { Bubble, useMessages } from "@chatui/core"
 // 引入样式
+
+import { useAppSelector, useAppDispatch } from "./store/hooks"
+import {
+  decrement,
+  increment,
+  incrementByAmount,
+  selectCount,
+} from "./store/counter"
+
+// const count = useAppSelector(selectCount)
+// const dispatch = useAppDispatch()
+// const [incrementAmount, setIncrementAmount] = useState("2")
 
 const initialMessages = [
   {
@@ -12,7 +25,7 @@ const initialMessages = [
   },
   {
     type: "text",
-    content: { text: "主人好，我是智能助理，你的贴心小助手~" },
+    content: { text: "您好，我是智能助理，你的贴心小助手~" },
     user: {
       avatar: "//gw.alicdn.com/tfs/TB1DYHLwMHqK1RjSZFEXXcGMXXa-56-62.svg",
     },
@@ -28,11 +41,11 @@ const defaultQuickReplies = [
     isHighlight: true,
   },
   {
-    name: "短语1",
+    name: "债权人会议",
     isNew: true,
   },
   {
-    name: "短语2",
+    name: "债权申报",
     isHighlight: true,
   },
   {
@@ -76,7 +89,7 @@ export default function () {
 
   // 快捷短语回调，可根据 item 数据做出不同的操作，这里以发送文本消息为例
   function handleQuickReplyClick(item: any) {
-    console.log(item, '快捷短语回调')
+    console.log(item, "快捷短语回调")
     handleSend("text", item.name)
   }
 
@@ -98,46 +111,50 @@ export default function () {
   }
 
   return (
-    <Chat
-      wideBreakpoint="600px"
-      messages={messages}
-      navbar={{
-        leftContent: {
-          icon: 'chevron-left',
-          title: 'Back',
-        },
-        rightContent: [
-          {
-            icon: 'apps',
-            title: 'Applications',
-          },
-          {
-            icon: 'ellipsis-h',
-            title: 'More',
-          },
-        ],
-        title: '智能助理',
-      }}
-      toolbar={[
-        {
-          type: "orderSelector",
-          icon: "shopping-bag",
-          title: "OrdderSelector",
-        },
-        {
-          type: "photo",
-          title: "Photo",
-          img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-        },
-      ]}
-      rightAction= {{
-        img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-      }}
-      renderMessageContent={renderMessageContent}
-      quickReplies={defaultQuickReplies}
-      onQuickReplyClick={handleQuickReplyClick}
-      onSend={handleSend}
-      onImageSend={handlePasteImg}
-    />
+    <LoginModel></LoginModel>
   )
+
+  // return (
+    // <Chat
+    //   wideBreakpoint="600px"
+    //   messages={messages}
+    //   navbar={{
+    //     leftContent: {
+    //       icon: "chevron-left",
+    //       title: "Back",
+    //     },
+    //     rightContent: [
+    //       {
+    //         icon: "apps",
+    //         title: "Applications",
+    //       },
+    //       {
+    //         icon: "ellipsis-h",
+    //         title: "More",
+    //       },
+    //     ],
+    //     title: "智能助理",
+    //   }}
+    //   toolbar={[
+    //     {
+    //       type: "orderSelector",
+    //       icon: "shopping-bag",
+    //       title: "OrdderSelector",
+    //     },
+    //     {
+    //       type: "photo",
+    //       title: "Photo",
+    //       img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
+    //     },
+    //   ]}
+    //   rightAction={{
+    //     img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
+    //   }}
+    //   renderMessageContent={renderMessageContent}
+    //   quickReplies={defaultQuickReplies}
+    //   onQuickReplyClick={handleQuickReplyClick}
+    //   onSend={handleSend}
+    //   onImageSend={handlePasteImg}
+    // />
+  // )
 }
