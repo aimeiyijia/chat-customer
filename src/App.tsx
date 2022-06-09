@@ -1,20 +1,20 @@
-import React, { useCallback, useState } from "react"
-import LoginModel from "./login"
-// 引入组件
+import React, { useCallback, useEffect, useState } from "react"
+
 import Chat, { Bubble, Modal, useMessages } from "@chatui/core"
-// 引入样式
+
+import cookie from "js-cookie"
 
 import { useAppSelector, useAppDispatch } from "./store/hooks"
 import {
-  decrement,
-  increment,
-  incrementByAmount,
-  selectCount,
-} from "./store/counter"
+  getToken,
+  getUserInfo,
+  getServerInfo,
+  setServerInfo,
+} from "./store/user"
 
-// const count = useAppSelector(selectCount)
-// const dispatch = useAppDispatch()
-// const [incrementAmount, setIncrementAmount] = useState("2")
+import Socket from "@/socket"
+
+import LoginModel from "./login"
 
 const initialMessages = [
   {
@@ -27,7 +27,7 @@ const initialMessages = [
     type: "text",
     content: { text: "您好，我是智能助理，你的贴心小助手~" },
     user: {
-      avatar: "//gw.alicdn.com/tfs/TB1DYHLwMHqK1RjSZFEXXcGMXXa-56-62.svg",
+      avatar: "https://api.multiavatar.com/767febcc414a7722d2.svg",
     },
   },
 ]
@@ -54,28 +54,70 @@ const defaultQuickReplies = [
 ]
 
 export default function () {
+  const useDispatch = useAppDispatch()
+  let userInfo = useAppSelector(getUserInfo)
+  let serverInfo = useAppSelector(getServerInfo)
+  const userToken = useAppSelector(getToken)
+  const storeToken = cookie.get("token")
   const [open, setOpen] = useState(true)
+
+  useEffect(() => {
+    if (userToken || storeToken) {
+      setOpen(false)
+    } else {
+      setOpen(true)
+    }
+  }, [userToken])
+  useEffect(() => {
+    if (userToken || storeToken) {
+      Socket.connectSocket()
+      // 分配客服
+      const storeUserInfo = cookie.get("userInfo")
+      userInfo = JSON.parse(storeUserInfo)
+      console.log(userInfo, "用户信息")
+      Socket._socket.emit("AssignServer", userInfo)
+      Socket._socket.on("AssignServer", (data: any) => {
+        console.log(data, "分配客服成功")
+        useDispatch(setServerInfo(data.data))
+      })
+      Socket._socket.on("CustomerMessage", (data: any) => {
+        console.log(data, "消息")
+        appendMsg({
+          type: "text",
+          content: { text: data.data.content },
+          position: "right",
+        })
+      })
+    }
+  }, [userToken])
   // 消息列表
   const { messages, appendMsg, setTyping } = useMessages(initialMessages)
 
   // 发送回调
   function handleSend(type: string, val: any) {
     if (type === "text" && val.trim()) {
-      appendMsg({
-        type: "text",
-        content: { text: val },
-        position: "right",
-      })
+      // appendMsg({
+      //   type: "text",
+      //   content: { text: val },
+      //   position: "right",
+      // })
+
+      // console.log(userInfo, "用户信息")
+      // console.log(serverInfo, "客服信息")
+
+      const userMessage = {
+        chatUserId: userInfo!.chatUserId,
+        chatUserFriendId: serverInfo!.chatUserId,
+        sendRole: "customer",
+        content: val,
+        messageType: "text",
+        sendTime: new Date().valueOf(),
+        token: userToken,
+      }
+      console.log(userMessage, "哈哈哈")
+      Socket._socket.emit("CustomerMessage", userMessage)
 
       setTyping(true)
-
-      // 模拟回复消息
-      setTimeout(() => {
-        appendMsg({
-          type: "text",
-          content: { text: "亲，您遇到什么问题啦？请简要描述您的问题~" },
-        })
-      }, 1000)
     }
   }
 
@@ -111,53 +153,51 @@ export default function () {
     }
   }
 
-  return (
+  return open ? (
     <Modal active={open} showClose={false} backdrop="static">
       <LoginModel></LoginModel>
     </Modal>
+  ) : (
+    <Chat
+      wideBreakpoint="600px"
+      messages={messages}
+      navbar={{
+        leftContent: {
+          icon: "chevron-left",
+          title: "Back",
+        },
+        rightContent: [
+          {
+            icon: "apps",
+            title: "Applications",
+          },
+          {
+            icon: "ellipsis-h",
+            title: "More",
+          },
+        ],
+        title: "智能助理",
+      }}
+      toolbar={[
+        {
+          type: "orderSelector",
+          icon: "shopping-bag",
+          title: "OrdderSelector",
+        },
+        {
+          type: "photo",
+          title: "Photo",
+          img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
+        },
+      ]}
+      rightAction={{
+        img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
+      }}
+      renderMessageContent={renderMessageContent}
+      quickReplies={defaultQuickReplies}
+      onQuickReplyClick={handleQuickReplyClick}
+      onSend={handleSend}
+      onImageSend={handlePasteImg}
+    />
   )
-
-  // return (
-  // <Chat
-  //   wideBreakpoint="600px"
-  //   messages={messages}
-  //   navbar={{
-  //     leftContent: {
-  //       icon: "chevron-left",
-  //       title: "Back",
-  //     },
-  //     rightContent: [
-  //       {
-  //         icon: "apps",
-  //         title: "Applications",
-  //       },
-  //       {
-  //         icon: "ellipsis-h",
-  //         title: "More",
-  //       },
-  //     ],
-  //     title: "智能助理",
-  //   }}
-  //   toolbar={[
-  //     {
-  //       type: "orderSelector",
-  //       icon: "shopping-bag",
-  //       title: "OrdderSelector",
-  //     },
-  //     {
-  //       type: "photo",
-  //       title: "Photo",
-  //       img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-  //     },
-  //   ]}
-  //   rightAction={{
-  //     img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-  //   }}
-  //   renderMessageContent={renderMessageContent}
-  //   quickReplies={defaultQuickReplies}
-  //   onQuickReplyClick={handleQuickReplyClick}
-  //   onSend={handleSend}
-  //   onImageSend={handlePasteImg}
-  // />
-  // )
 }

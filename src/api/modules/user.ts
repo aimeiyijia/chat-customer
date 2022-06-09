@@ -1,17 +1,11 @@
 import fetch from "@/http"
 
-declare type LoginParams = {
-  username: string | number
-  password: string
-  platform: string
-}
-
 /**
  * 客服注册
  * @param params
  */
 export const register = (params: LoginParams) => {
-  return fetch.post(`/auth/register`, {
+  return fetch.post(`/broke/chatUser/register`, {
     ...params,
   })
 }
@@ -20,7 +14,7 @@ export const register = (params: LoginParams) => {
  * @param params
  */
 export const login = (params: LoginParams) => {
-  return fetch.post(`/auth/login`, {
+  return fetch.post(`/broke/chatUser/login`, {
     ...params,
   })
 }

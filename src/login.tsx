@@ -8,11 +8,15 @@ import {
   Slide,
 } from "react-toastify"
 import "react-toastify/ReactToastify.min.css"
-import { useNotificationCenter } from "react-toastify/addons/use-notification-center"
 import "font-awesome/less/font-awesome.less"
 import "react-fontawesome"
 import "animate.css"
 import { processReturn } from "@/http/utils"
+import { getRandomName } from "@/utils"
+
+import { useAppSelector, useAppDispatch } from "./store/hooks"
+import { setToken, clearToken, setUserInfo, clearUserInfo } from "./store/user"
+
 import { login } from "@/api"
 
 const sc = styled
@@ -162,36 +166,42 @@ const CardLink = sc.a`
   }
 `
 
-export default function () {
+const definedAnimate = cssTransition({
+  enter: "animate__animated animate__shakeX",
+  exit: "animate__animated animate__backOutUp",
+})
+
+declare type LoginContainerProps = {
+  onLoginSuccess?: () => void
+}
+
+const LoginContainer: React.FC<LoginContainerProps> = (props) => {
+  const { onLoginSuccess } = props
+  const useDispatch = useAppDispatch()
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   const [loginForm, setLoginForm] = useState({
-    username: "",
-    password: "",
-    platform: "customer",
+    username: "15064836859",
+    password: "1",
+    role: "customer",
+    loginType: "1",
   })
 
-  const definedAnimate = cssTransition({
-    collapseDuration: 500,
-    enter: "animate__animated animate__shakeX",
-    exit: "animate__animated animate__backOutUp",
-  })
-
+  // 显示/隐藏代码
   function revealPassword() {
     setIsPasswordVisible(!isPasswordVisible)
   }
 
   function verifyForm() {
     if (loginForm.username.length === 0) {
-      // toast.fail("请输入账号")
-      toast("Default Notification !", {
+      toast("请输入账号", {
         type: "error",
-        delay: 10,
       })
-      console.log(1234)
       return false
     }
     if (loginForm.password.length === 0) {
-      // toast.fail("请输入密码")
+      toast("请输入密码", {
+        type: "error",
+      })
       return false
     }
     return true
@@ -200,18 +210,30 @@ export default function () {
   function handleAccountLogin() {
     if (verifyForm()) {
       console.log(loginForm, "账号登录")
-      console.log("账号登录")
+      handleLogin(loginForm)
     }
   }
 
   function handleVisitorLogin() {
-    console.log(loginForm, "游客登录")
+    const visitor: LoginParams = {
+      username: `游客-${getRandomName(3)}`,
+      password: "1",
+      role: "customer",
+      loginType: "2",
+    }
+    console.log(visitor, "游客登录")
+    handleLogin(visitor)
   }
 
-  async function handleLogin() {
+  async function handleLogin(loginParams: LoginParams) {
     // 系统中无该用户时，后端执行先自动注册再登录
     // 有该用户就直接登录
-    const res = await processReturn(login(loginForm))
+    const res = await processReturn(login(loginParams))
+    if (res) {
+      useDispatch(setUserInfo(res.user))
+      useDispatch(setToken(res.token))
+      onLoginSuccess && onLoginSuccess()
+    }
   }
 
   return (
@@ -226,6 +248,7 @@ export default function () {
             placeholder="账号"
             type="text"
             required
+            value={loginForm.username}
             onChange={(e) =>
               setLoginForm({ ...loginForm, username: e.target.value })
             }
@@ -237,6 +260,7 @@ export default function () {
             placeholder="密码"
             type={!isPasswordVisible ? "password" : "text"}
             required
+            value={loginForm.password}
             onChange={(e) =>
               setLoginForm({ ...loginForm, password: e.target.value })
             }
@@ -259,15 +283,16 @@ export default function () {
         position="top-center"
         autoClose={300}
         hideProgressBar={true}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick={false}
         transition={definedAnimate}
-        rtl={false}
         pauseOnFocusLoss={false}
         draggable={false}
         theme="colored"
-        pauseOnHover
+        pauseOnHover={false}
       />
     </CardWrapper>
   )
 }
+
+export default LoginContainer

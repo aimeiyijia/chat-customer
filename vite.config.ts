@@ -2,8 +2,6 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from "path"
 
-const Host = "http://localhost:3000"
-
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -17,13 +15,13 @@ export default defineConfig({
     port: 2022,
     proxy: {
       "/api": {
-        target: Host,
+        target: 'http://192.168.2.74:8887',
         ws: true,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/socket.io": {
-        target: Host,
+        target: 'http://192.168.2.74:8889',
         ws: true,
       },
     },
