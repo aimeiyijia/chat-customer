@@ -1,7 +1,7 @@
 {
-  "name": "my-vue-app",
+  "name": "chat-customer",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -11,8 +11,8 @@
     "@chatui/core": "^1.4.1",
     "@reduxjs/toolkit": "^1.8.2",
     "font-awesome": "^4.7.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": "18.1.0",
+    "react-dom": "18.1.0",
     "react-fontawesome": "^1.7.1",
     "react-redux": "^8.0.2",
     "redux": "^4.2.0",
