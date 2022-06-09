@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react"
-import LoginModel from './login'
+import LoginModel from "./login"
 // 引入组件
-import Chat, { Bubble, useMessages } from "@chatui/core"
+import Chat, { Bubble, Modal, useMessages } from "@chatui/core"
 // 引入样式
 
 import { useAppSelector, useAppDispatch } from "./store/hooks"
@@ -54,6 +54,7 @@ const defaultQuickReplies = [
 ]
 
 export default function () {
+  const [open, setOpen] = useState(true)
   // 消息列表
   const { messages, appendMsg, setTyping } = useMessages(initialMessages)
 
@@ -111,50 +112,52 @@ export default function () {
   }
 
   return (
-    <LoginModel></LoginModel>
+    <Modal active={open} showClose={false} backdrop="static">
+      <LoginModel></LoginModel>
+    </Modal>
   )
 
   // return (
-    // <Chat
-    //   wideBreakpoint="600px"
-    //   messages={messages}
-    //   navbar={{
-    //     leftContent: {
-    //       icon: "chevron-left",
-    //       title: "Back",
-    //     },
-    //     rightContent: [
-    //       {
-    //         icon: "apps",
-    //         title: "Applications",
-    //       },
-    //       {
-    //         icon: "ellipsis-h",
-    //         title: "More",
-    //       },
-    //     ],
-    //     title: "智能助理",
-    //   }}
-    //   toolbar={[
-    //     {
-    //       type: "orderSelector",
-    //       icon: "shopping-bag",
-    //       title: "OrdderSelector",
-    //     },
-    //     {
-    //       type: "photo",
-    //       title: "Photo",
-    //       img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-    //     },
-    //   ]}
-    //   rightAction={{
-    //     img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-    //   }}
-    //   renderMessageContent={renderMessageContent}
-    //   quickReplies={defaultQuickReplies}
-    //   onQuickReplyClick={handleQuickReplyClick}
-    //   onSend={handleSend}
-    //   onImageSend={handlePasteImg}
-    // />
+  // <Chat
+  //   wideBreakpoint="600px"
+  //   messages={messages}
+  //   navbar={{
+  //     leftContent: {
+  //       icon: "chevron-left",
+  //       title: "Back",
+  //     },
+  //     rightContent: [
+  //       {
+  //         icon: "apps",
+  //         title: "Applications",
+  //       },
+  //       {
+  //         icon: "ellipsis-h",
+  //         title: "More",
+  //       },
+  //     ],
+  //     title: "智能助理",
+  //   }}
+  //   toolbar={[
+  //     {
+  //       type: "orderSelector",
+  //       icon: "shopping-bag",
+  //       title: "OrdderSelector",
+  //     },
+  //     {
+  //       type: "photo",
+  //       title: "Photo",
+  //       img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
+  //     },
+  //   ]}
+  //   rightAction={{
+  //     img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
+  //   }}
+  //   renderMessageContent={renderMessageContent}
+  //   quickReplies={defaultQuickReplies}
+  //   onQuickReplyClick={handleQuickReplyClick}
+  //   onSend={handleSend}
+  //   onImageSend={handlePasteImg}
+  // />
   // )
 }

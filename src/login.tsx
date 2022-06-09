@@ -1,30 +1,36 @@
 import React, { useState } from "react"
-import PropTypes from "prop-types"
 import styled, { css } from "styled-components"
+import {
+  Icons,
+  ToastContainer,
+  toast,
+  cssTransition,
+  Slide,
+} from "react-toastify"
+import "react-toastify/ReactToastify.min.css"
+import { useNotificationCenter } from "react-toastify/addons/use-notification-center"
 import "font-awesome/less/font-awesome.less"
 import "react-fontawesome"
+import "animate.css"
+import { processReturn } from "@/http/utils"
+import { login } from "@/api"
 
 const sc = styled
 
 const CardWrapper = sc.div`
   overflow: hidden;
-  padding: 0 0 32px;
-  margin: 48px auto 0;
-  width: 300px;
   font-family: Quicksand, arial, sans-serif;
-  box-shadow: 0 0 20px rgba(0, 0, 0, .05), 0 0px 40px rgba(0, 0, 0, .08);
-  border-radius: 5px;
+  padding: 24px 0;
 `
 
 const CardHeader = sc.header`
-  padding-top: 32px;
   padding-bottom: 32px;
+  text-align: center;
 `
 
-const CardHeading = sc.h1`
+const CardHeading = sc.span`
   font-size: 24px;
   font-weight: bold;
-  text-align: center;
 `
 
 const CardBody = sc.div`
@@ -63,7 +69,7 @@ const CardInput = sc.input`
   transition: border-bottom-color .25s ease-in;
 
   &:focus {
-    border-bottom-color: #e5195f;
+    border-bottom-color: #316cf1;
     outline: 0;
   }
 `
@@ -120,24 +126,6 @@ const CardOptionsNote = sc.small`
   text-transform: uppercase;
 `
 
-const CardOptions = sc.ul`
-  padding: 0;
-  margin: 16px 0 8px;
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  list-style-type: none;
-`
-
-const CardOptionsItem = sc.li`
-  &:nth-of-type(n+2) {
-    margin-left: 16px;
-  }
-`
-
 const CardButton = sc.button`
   display: block;
   width: 100%;
@@ -146,9 +134,10 @@ const CardButton = sc.button`
   font-size: 14px;
   font-weight: 700;
   color: #fff;
-  background-color: #e5195f;
+  background-color: #316cf1;
   border: 0;
   border-radius: 35px;
+  outline: none;
   box-shadow: 0 10px 10px rgba(0, 0, 0, .08);
   cursor: pointer;
   transition: all .25s cubic-bezier(.02, .01, .47, 1);
@@ -175,86 +164,110 @@ const CardLink = sc.a`
 
 export default function () {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false)
+  const [loginForm, setLoginForm] = useState({
+    username: "",
+    password: "",
+    platform: "customer",
+  })
+
+  const definedAnimate = cssTransition({
+    collapseDuration: 500,
+    enter: "animate__animated animate__shakeX",
+    exit: "animate__animated animate__backOutUp",
+  })
+
   function revealPassword() {
-    console.log(1234)
     setIsPasswordVisible(!isPasswordVisible)
+  }
+
+  function verifyForm() {
+    if (loginForm.username.length === 0) {
+      // toast.fail("请输入账号")
+      toast("Default Notification !", {
+        type: "error",
+        delay: 10,
+      })
+      console.log(1234)
+      return false
+    }
+    if (loginForm.password.length === 0) {
+      // toast.fail("请输入密码")
+      return false
+    }
+    return true
+  }
+
+  function handleAccountLogin() {
+    if (verifyForm()) {
+      console.log(loginForm, "账号登录")
+      console.log("账号登录")
+    }
+  }
+
+  function handleVisitorLogin() {
+    console.log(loginForm, "游客登录")
+  }
+
+  async function handleLogin() {
+    // 系统中无该用户时，后端执行先自动注册再登录
+    // 有该用户就直接登录
+    const res = await processReturn(login(loginForm))
   }
 
   return (
     <CardWrapper>
       <CardHeader>
-        <CardHeading>New User</CardHeading>
+        <CardHeading>请登录</CardHeading>
       </CardHeader>
 
       <CardBody>
         <CardFieldset>
-          <CardInput placeholder="Username" type="text" required />
-        </CardFieldset>
-
-        <CardFieldset>
-          <CardInput placeholder="E-mail" type="text" required />
+          <CardInput
+            placeholder="账号"
+            type="text"
+            required
+            onChange={(e) =>
+              setLoginForm({ ...loginForm, username: e.target.value })
+            }
+          />
         </CardFieldset>
 
         <CardFieldset>
           <CardInput
-            placeholder="Password"
+            placeholder="密码"
             type={!isPasswordVisible ? "password" : "text"}
             required
+            onChange={(e) =>
+              setLoginForm({ ...loginForm, password: e.target.value })
+            }
           />
 
           <CardIcon onClick={revealPassword} className="fa fa-eye" eye small />
         </CardFieldset>
 
         <CardFieldset>
-          <CardOptionsNote>Or sign up with</CardOptionsNote>
-
-          <CardOptions>
-            <CardOptionsItem>
-              <CardIcon
-                onClick={revealPassword}
-                className="fa fa-google-plus"
-                big
-              />
-            </CardOptionsItem>
-
-            <CardOptionsItem>
-              <CardIcon
-                onClick={revealPassword}
-                className="fa fa-twitter"
-                big
-              />
-            </CardOptionsItem>
-
-            <CardOptionsItem>
-              <CardIcon
-                onClick={revealPassword}
-                className="fa fa-facebook"
-                big
-              />
-            </CardOptionsItem>
-          </CardOptions>
+          <CardButton type="button" onClick={handleAccountLogin}>
+            登录
+          </CardButton>
         </CardFieldset>
 
         <CardFieldset>
-          <CardButton type="button">Sign Up</CardButton>
-        </CardFieldset>
-
-        <CardFieldset>
-          <CardLink>I already have an account</CardLink>
+          <CardLink onClick={handleVisitorLogin}>游客登录</CardLink>
         </CardFieldset>
       </CardBody>
+      <ToastContainer
+        position="top-center"
+        autoClose={300}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick={false}
+        transition={definedAnimate}
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        theme="colored"
+        pauseOnHover
+      />
     </CardWrapper>
   )
 }
-
-// class Card extends React.Component {
-//   constructor(props) {
-//     super(props)
-
-//     this.state = {
-//       isPasswordVisible: false,
-//     }
-
-//     this.revealPassword = this.revealPassword.bind(this)
-//   }
-// }

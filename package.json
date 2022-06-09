@@ -10,11 +10,17 @@
   "dependencies": {
     "@chatui/core": "^1.4.1",
     "@reduxjs/toolkit": "^1.8.2",
+    "animate.css": "^4.1.1",
+    "await-to-js": "^3.0.0",
+    "axios": "^0.27.2",
     "font-awesome": "^4.7.0",
+    "js-cookie": "^3.0.1",
+    "normalize.css": "^8.0.1",
     "react": "18.1.0",
     "react-dom": "18.1.0",
     "react-fontawesome": "^1.7.1",
     "react-redux": "^8.0.2",
+    "react-toastify": "^9.0.4",
     "redux": "^4.2.0",
     "socket.io-client": "2.3.0",
     "styled-components": "^5.3.5"
