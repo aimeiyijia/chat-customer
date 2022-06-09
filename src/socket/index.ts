@@ -1,5 +1,5 @@
 import io from "socket.io-client"
-import cookie from "js-cookie"
+// import cookie from "js-cookie"
 import { EventEmitter } from "events"
 class SocketIO {
   public _event: any
@@ -12,8 +12,7 @@ class SocketIO {
 
   connectSocket() {
     if (this._socket) return this._socket
-    const userInfo = cookie.get("userInfo")
-    const { chatUserId, role } = JSON.parse(userInfo)
+    const { chatUserId, role } = {}
     const socket: SocketIOClient.Socket = io(
       `/?chatUserId=${chatUserId}&role=${role}`,
       {

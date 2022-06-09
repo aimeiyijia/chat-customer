@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import cookie from "js-cookie"
-import { persistStore, persistReducer } from "redux-persist"
+// import cookie from "js-cookie"
 import { RootState } from "./store"
 
 export interface UserState {
@@ -21,23 +20,18 @@ export const userSlice = createSlice({
   reducers: {
     setToken: (state: UserState, action: PayloadAction<string>) => {
       state.token = action.payload
-      cookie.set("token", state.token, { expires: 3 })
     },
     clearToken: (state: UserState) => {
       state.token = ""
     },
     setUserInfo: (state: UserState, action: PayloadAction<User>) => {
       state.userInfo = action.payload
-      cookie.set("userInfo", JSON.stringify(state.userInfo), { expires: 3650 })
     },
     clearUserInfo: (state: UserState) => {
       state.userInfo = null
     },
     setServerInfo: (state: UserState, action: PayloadAction<User>) => {
       state.serverInfo = action.payload
-      cookie.set("serverInfo", JSON.stringify(state.userInfo), {
-        expires: 3650,
-      })
     },
     clearServerInfo: (state: UserState) => {
       state.serverInfo = null

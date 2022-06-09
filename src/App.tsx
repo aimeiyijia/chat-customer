@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useState } from "react"
 
 import Chat, { Bubble, Modal, useMessages } from "@chatui/core"
 
-import cookie from "js-cookie"
-
 import { useAppSelector, useAppDispatch } from "./store/hooks"
 import {
   getToken,
@@ -58,22 +56,19 @@ export default function () {
   let userInfo = useAppSelector(getUserInfo)
   let serverInfo = useAppSelector(getServerInfo)
   const userToken = useAppSelector(getToken)
-  const storeToken = cookie.get("token")
   const [open, setOpen] = useState(true)
 
   useEffect(() => {
-    if (userToken || storeToken) {
+    if (userToken) {
       setOpen(false)
     } else {
       setOpen(true)
     }
   }, [userToken])
   useEffect(() => {
-    if (userToken || storeToken) {
+    if (userToken) {
       Socket.connectSocket()
       // 分配客服
-      const storeUserInfo = cookie.get("userInfo")
-      userInfo = JSON.parse(storeUserInfo)
       console.log(userInfo, "用户信息")
       Socket._socket.emit("AssignServer", userInfo)
       Socket._socket.on("AssignServer", (data: any) => {
