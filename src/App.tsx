@@ -48,11 +48,13 @@ const defaultQuickReplies = [
     name: "联系人工服务",
     isHighlight: true,
     // 执行的命令名称
+    // 独有的命令，转人工客服
     type: "call-server",
   },
   {
     name: "债权人会议",
     // isNew: true,
+    // 自动回复
     type: "auto-reply",
     links: [
       {
@@ -93,6 +95,7 @@ export default function () {
       Socket.connectSocket()
       // 分配客服
       console.log(userInfo, "用户信息")
+      console.log(serverInfo, "客服信息")
 
       Socket._socket.on("CustomerChatData", (data: any) => {
         console.log(data, "聊天数据")
@@ -113,8 +116,35 @@ export default function () {
           })
         })
       })
+      Socket._socket.on("AssignRobot", (data: any) => {
+        console.log(data, "分配机器客服成功")
+        useDispatch(setServerInfo(data.data))
+      })
       Socket._socket.on("AssignServer", (data: any) => {
         console.log(data, "分配客服成功")
+        if (data.code === 201) {
+          appendMsg({
+            type: "text",
+            content: {
+              text: data.msg,
+            },
+            user: {
+              avatar: "https://api.multiavatar.com/769b860a4aeafa7f28.png",
+            },
+            position: "left",
+          })
+          return
+        }
+        appendMsg({
+          type: "text",
+          content: {
+            text: data.msg,
+          },
+          user: {
+            avatar: "https://api.multiavatar.com/769b860a4aeafa7f28.png",
+          },
+          position: "left",
+        })
         useDispatch(setServerInfo(data.data))
       })
       Socket._socket.on("CustomerMessage", (data: any) => {
@@ -138,7 +168,20 @@ export default function () {
       setTimeout(() => {
         console.log("触发事件", Socket._socket)
         Socket._socket.emit("CustomerChatData", userInfo)
-        Socket._socket.emit("AssignServer", userInfo)
+        appendMsg({
+          type: "system",
+          content: {
+            text: "智能助理进入对话，为您服务",
+          },
+        })
+        if (serverInfo && serverInfo!.role === "server") {
+          Socket._socket.emit("AssignServer", {
+            chatUserId: userInfo!.chatUserId,
+            serverUserId: serverInfo!.chatUserId,
+          })
+          return
+        }
+        Socket._socket.emit("AssignRobot", userInfo)
       })
     }
   }, [])
@@ -211,6 +254,10 @@ export default function () {
       case "call-server":
         console.log("召唤人工客服")
         handleSend("text", item.name)
+        Socket._socket.emit("AssignServer", {
+          chatUserId: userInfo!.chatUserId,
+          serverUserId: "",
+        })
         break
       case "auto-reply":
         console.log("自动回复", item)
@@ -266,7 +313,6 @@ export default function () {
             <RichText content={html} />
           </Bubble>
         )
-
       default:
         return null
     }
