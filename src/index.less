@@ -1,8 +1,6 @@
-@import '@chatui/core/es/styles/index.less';
+@import "@chatui/core/es/styles/index.less";
 // 引入定制的样式
-@import './chatui-theme.less';
-
-
+@import "./chatui-theme.less";
 
 // 覆盖 LESS 变量
 @brand-1: #255bda;
@@ -15,4 +13,8 @@
 
 .Backdrop {
   transition: none;
+}
+
+.S--focusing .MessageList {
+  margin-top: 0 !important;
 }

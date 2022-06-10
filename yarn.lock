@@ -323,6 +323,11 @@
     "@jridgewell/resolve-uri" "^3.0.3"
     "@jridgewell/sourcemap-codec" "^1.4.10"
 
+"@multiavatar/multiavatar@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@multiavatar/multiavatar/-/multiavatar-1.0.7.tgz#bc2b855bab728a51ee9cee2412ee9f76282b7c78"
+  integrity sha512-Yg9Uw57bmlErsWL0CSv4d6D4ZqVBE00OZmYr9MRgygoXZdboNtsEI6FbBRw1AY8l88Sm1ARcyojtlm2uwUn0Zg==
+
 "@reduxjs/toolkit@^1.8.2":
   version "1.8.2"
   resolved "https://registry.npmjs.org/@reduxjs/toolkit/-/toolkit-1.8.2.tgz"
@@ -348,6 +353,11 @@
   dependencies:
     "@types/react" "*"
     hoist-non-react-statics "^3.3.0"
+
+"@types/multiavatar__multiavatar@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/multiavatar__multiavatar/-/multiavatar__multiavatar-1.0.0.tgz#82204bb442a09cc997be8e793c5d31eb5d1baeb5"
+  integrity sha512-EFIHcU1BbBMo8ZTL6FPWubydPAAu7mepZdiicArTmVPzDPR96bJghB4yg8moEuYqnbG1U0ex29Eo+PL17343Og==
 
 "@types/node@^17.0.41":
   version "17.0.41"

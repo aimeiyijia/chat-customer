@@ -1,6 +1,8 @@
 import io from "socket.io-client"
 // import cookie from "js-cookie"
 import { EventEmitter } from "events"
+
+import { store } from "@/store/store"
 class SocketIO {
   public _event: any
   public _socket: any
@@ -12,7 +14,12 @@ class SocketIO {
 
   connectSocket() {
     if (this._socket) return this._socket
-    const { chatUserId, role } = {}
+
+    const userStore = store.getState()
+    console.log(userStore, "装填")
+    const { userInfo } = userStore.user
+    if (!userInfo) return
+    const { chatUserId, role } = userInfo
     const socket: SocketIOClient.Socket = io(
       `/?chatUserId=${chatUserId}&role=${role}`,
       {
