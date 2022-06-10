@@ -184,7 +184,7 @@ export default function () {
         Socket._socket.emit("AssignRobot", userInfo)
       })
     }
-  }, [])
+  }, [userToken])
   // 消息列表
   const { messages, appendMsg, setTyping } = useMessages(initialMessages)
 
@@ -242,7 +242,7 @@ export default function () {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve(null)
-      }, 3000)
+      }, 300)
     })
   }, [])
 
@@ -264,7 +264,7 @@ export default function () {
         handleSend("text", item.name)
         setTimeout(() => {
           handleSend("auto", item)
-        }, 300)
+        }, 600)
         break
     }
   }
@@ -274,7 +274,7 @@ export default function () {
     handleSend("text", item.name)
     setTimeout(() => {
       handleSend("url", item)
-    }, 300)
+    }, 600)
   }
 
   function renderMessageContent(msg: any) {
