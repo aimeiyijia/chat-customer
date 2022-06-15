@@ -44,6 +44,21 @@ export function generateUUID() {
   })
 }
 
+// 获取到文件类型
+export const getFileType = (file: { fileName: string }) => {
+  if (file && file.fileName) {
+    const lastPointeIndex = file.fileName.lastIndexOf(".")
+    const len = file.fileName.length
+    const name = file.fileName.substring(0, lastPointeIndex)
+    const type = file.fileName.substring(lastPointeIndex + 1, len)
+    return {
+      name,
+      type,
+    }
+  }
+  return ""
+}
+
 // 获取指定范围内的随机数
 function randomAccess(min: number, max: number) {
   return Math.floor(Math.random() * (min - max) + max)

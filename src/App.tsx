@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { useCallback, useEffect, useState, useRef, useMemo } from "react"
 
 import Chat, {
   Bubble,
@@ -9,6 +9,8 @@ import Chat, {
   RichText,
   Image,
 } from "@chatui/core"
+
+import Dropzone, { UploadFile } from "./Upload"
 
 import multiavatar from "@multiavatar/multiavatar/esm"
 
@@ -86,6 +88,11 @@ export default function () {
   let serverInfo = useAppSelector(getServerInfo)
   const userToken = useAppSelector(getToken)
   const [open, setOpen] = useState(true)
+
+  type DropzoneRef = {
+    open: () => void
+  }
+  const dropzoneRef = useRef<DropzoneRef>(null)
 
   useEffect(() => {
     if (userToken) {
@@ -226,7 +233,7 @@ export default function () {
     }
     if (type === "url") {
       const userMessage = {
-        chatUserId: serverInfo!.chatUserId,
+        chatUserId: userInfo!.chatUserId,
         chatUserFriendId: userInfo!.chatUserId,
         sendRole: "server",
         content: JSON.stringify(val),
@@ -281,6 +288,30 @@ export default function () {
     }, 600)
   }
 
+  // 目前只支持图片上传
+  function handleToolbarClick() {
+    console.log(dropzoneRef)
+    if (dropzoneRef.current) {
+      dropzoneRef.current.open()
+    }
+  }
+  const handleFileUploadSuccess = useCallback((file: UploadFile) => {
+    const userMessage = {
+      chatUserId: serverInfo!.chatUserId,
+      chatUserFriendId: userInfo!.chatUserId,
+      sendRole: "customer",
+      content: JSON.stringify(file),
+      messageType: "image",
+      time: new Date().valueOf(),
+      token: userToken,
+    }
+    console.log(userMessage, "消息")
+
+    Socket._socket.emit("CustomerMessage", userMessage)
+
+    console.log("上传成功")
+  }, [])
+
   function renderMessageContent(msg: any) {
     const { type, content } = msg
     // 根据消息类型来渲染
@@ -288,7 +319,6 @@ export default function () {
       case "text":
         return <Bubble content={content.text} />
       case "image":
-        console.log(content, "tupian")
         const imgUrl = "http://192.168.0.181:90/download"
         const imgSrc = imgUrl + JSON.parse(content.text).ftpPath
         return (
@@ -329,43 +359,56 @@ export default function () {
     }
   }
 
+  const DropzoneFile = useMemo(
+    () => (
+      <Dropzone
+        ref={dropzoneRef}
+        onFileUploadSuccess={handleFileUploadSuccess}
+      />
+    ),
+    []
+  )
   return open ? (
     <Modal active={open} showClose={false} backdrop="static">
       <LoginModel></LoginModel>
     </Modal>
   ) : (
-    <Chat
-      wideBreakpoint="600px"
-      messages={messages}
-      navbar={{
-        leftContent: {
-          icon: "chevron-left",
-          title: "Back",
-        },
-        rightContent: [
-          {
-            icon: "apps",
-            title: "Applications",
+    <>
+      <Chat
+        wideBreakpoint="600px"
+        messages={messages}
+        navbar={{
+          leftContent: {
+            icon: "chevron-left",
+            title: "Back",
           },
+          rightContent: [
+            {
+              icon: "apps",
+              title: "Applications",
+            },
+            {
+              icon: "ellipsis-h",
+              title: "More",
+            },
+          ],
+          title: "智能助理",
+        }}
+        toolbar={[
           {
-            icon: "ellipsis-h",
-            title: "More",
+            type: "photo",
+            title: "发送图片",
+            img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
           },
-        ],
-        title: "智能助理",
-      }}
-      toolbar={[
-        {
-          type: "photo",
-          title: "发送图片",
-          img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-        },
-      ]}
-      renderMessageContent={renderMessageContent}
-      quickReplies={defaultQuickReplies}
-      onQuickReplyClick={handleQuickReplyClick}
-      onSend={handleSend}
-      onImageSend={handlePasteImg}
-    />
+        ]}
+        renderMessageContent={renderMessageContent}
+        quickReplies={defaultQuickReplies}
+        onQuickReplyClick={handleQuickReplyClick}
+        onSend={handleSend}
+        onImageSend={handlePasteImg}
+        onToolbarClick={handleToolbarClick}
+      />
+      {DropzoneFile}
+    </>
   )
 }

@@ -1,7 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
 import { resolve } from "path"
-
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -14,17 +13,23 @@ export default defineConfig({
   server: {
     port: 2022,
     proxy: {
+      "/api/upload": {
+        target: "http://192.168.0.181:90",
+        ws: true,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
       "/api": {
-        target: 'http://192.168.2.74:8887',
+        target: "http://192.168.2.74:8887",
         ws: true,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/socket.io": {
-        target: 'http://192.168.2.74:8889',
+        target: "http://192.168.2.74:8889",
         ws: true,
       },
     },
   },
-  plugins: [react()]
+  plugins: [react()],
 })
