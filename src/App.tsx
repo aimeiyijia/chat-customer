@@ -7,11 +7,15 @@ import Chat, {
   List,
   ListItem,
   RichText,
+  Image,
 } from "@chatui/core"
 
 import multiavatar from "@multiavatar/multiavatar/esm"
 
 import fetch from "@/http"
+
+import { PhotoProvider, PhotoView } from "react-photo-view"
+import "react-photo-view/dist/react-photo-view.css"
 
 import { useAppSelector, useAppDispatch } from "./store/hooks"
 import {
@@ -284,9 +288,16 @@ export default function () {
       case "text":
         return <Bubble content={content.text} />
       case "image":
+        console.log(content, "tupian")
+        const imgUrl = "http://192.168.0.181:90/download"
+        const imgSrc = imgUrl + JSON.parse(content.text).ftpPath
         return (
           <Bubble type="image">
-            <img src={content.picUrl} alt="" />
+            <PhotoProvider>
+              <PhotoView src={imgSrc}>
+                <Image src={imgSrc} alt="" fluid />
+              </PhotoView>
+            </PhotoProvider>
           </Bubble>
         )
       case "auto":
@@ -345,19 +356,11 @@ export default function () {
       }}
       toolbar={[
         {
-          type: "orderSelector",
-          icon: "shopping-bag",
-          title: "OrdderSelector",
-        },
-        {
           type: "photo",
-          title: "Photo",
+          title: "发送图片",
           img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
         },
       ]}
-      rightAction={{
-        img: "https://gw.alicdn.com/tfs/TB1eDjNj.T1gK0jSZFrXXcNCXXa-80-80.png",
-      }}
       renderMessageContent={renderMessageContent}
       quickReplies={defaultQuickReplies}
       onQuickReplyClick={handleQuickReplyClick}

@@ -24,7 +24,7 @@ class SocketIO {
       `/?chatUserId=${chatUserId}&role=${role}`,
       {
         transports: ["websocket"],
-        reconnection: false,
+        reconnection: true,
       }
     )
     socket.on("connect", () => {

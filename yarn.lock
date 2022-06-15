@@ -1210,6 +1210,11 @@ react-is@^18.0.0:
   resolved "https://registry.npmjs.org/react-is/-/react-is-18.1.0.tgz"
   integrity sha512-Fl7FuabXsJnV5Q1qIOQwx/sagGF18kogb4gpfcG4gjLBWO0WDiiz1ko/ExayuxE7InyQkBLkxRFG5oxY6Uu3Kg==
 
+react-photo-view@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/react-photo-view/-/react-photo-view-1.2.0.tgz#7cbd7bdad58be89f5880d2498ec8acd90d2259f3"
+  integrity sha512-1govldv9n9wGmhgFGOCB4vsBrcwFU4mWYAFSsx8YAVIRLXkTfzRHyqWBZdsPKgkHwfe/Y71ISQfQliJ8qfcomg==
+
 react-redux@^8.0.2:
   version "8.0.2"
   resolved "https://registry.npmjs.org/react-redux/-/react-redux-8.0.2.tgz"
