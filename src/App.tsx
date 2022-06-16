@@ -297,8 +297,8 @@ export default function () {
   }
   const handleFileUploadSuccess = useCallback((file: UploadFile) => {
     const userMessage = {
-      chatUserId: serverInfo!.chatUserId,
-      chatUserFriendId: userInfo!.chatUserId,
+      chatUserId: userInfo!.chatUserId,
+      chatUserFriendId: serverInfo!.chatUserId,
       sendRole: "customer",
       content: JSON.stringify(file),
       messageType: "image",
