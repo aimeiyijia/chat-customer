@@ -11,16 +11,12 @@ import Chat, {
 } from "@chatui/core"
 import type { QuickReplyItemProps } from "@chatui/core"
 
-import Dropzone, { UploadFile } from "./Upload"
-
-import multiavatar from "@multiavatar/multiavatar/esm"
-
-import fetch from "@/http"
+import Dropzone, { UploadFile } from "./component/upload"
 
 import { PhotoProvider, PhotoView } from "react-photo-view"
 import "react-photo-view/dist/react-photo-view.css"
 
-import { useAppSelector, useAppDispatch } from "./store/hooks"
+import { useAppSelector, useAppDispatch } from "@/store/hooks"
 import {
   getToken,
   getUserInfo,
@@ -30,7 +26,7 @@ import {
 
 import Socket from "@/socket"
 
-import LoginModel from "./login"
+import LoginModel from "@/views/login"
 
 const initialMessages = [
   {

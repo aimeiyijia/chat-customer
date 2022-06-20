@@ -21,9 +21,6 @@
     }
   },
   "include": ["src"],
-  "files": [
-    "types/chat.d.ts",
-    "types/user.d.ts",
-  ],
+  "files": ["types/chat.d.ts", "types/user.d.ts", "types/vite-env.d.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

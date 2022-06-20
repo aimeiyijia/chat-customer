@@ -14,8 +14,8 @@ import "animate.css"
 import { processReturn } from "@/http/utils"
 import { getRandomName } from "@/utils"
 
-import { useAppSelector, useAppDispatch } from "./store/hooks"
-import { setToken, clearToken, setUserInfo, clearUserInfo } from "./store/user"
+import { useAppSelector, useAppDispatch } from "@/store/hooks"
+import { setToken, clearToken, setUserInfo, clearUserInfo } from "@/store/user"
 
 import { login } from "@/api"
 
