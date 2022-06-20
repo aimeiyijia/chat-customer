@@ -9,6 +9,7 @@ import Chat, {
   RichText,
   Image,
 } from "@chatui/core"
+import type { QuickReplyItemProps } from "@chatui/core"
 
 import Dropzone, { UploadFile } from "./Upload"
 
@@ -47,6 +48,15 @@ const initialMessages = [
   },
 ]
 
+export type LinksProps = {
+  name: string
+  type: string
+  link: string
+}
+export interface ExtendQuickReplyItemProps extends QuickReplyItemProps {
+  type: string
+  links: LinksProps[]
+}
 // 默认快捷短语，可选
 const defaultQuickReplies = [
   {
@@ -258,9 +268,9 @@ export default function () {
   }, [])
 
   // 快捷短语回调，可根据 item 数据做出不同的操作
-  function handleQuickReplyClick(item: any) {
+  function handleQuickReplyClick(item: QuickReplyItemProps) {
     console.log(item, "快捷短语回调")
-    const { type, links } = item
+    const { type, links } = item as ExtendQuickReplyItemProps
     switch (type) {
       case "call-server":
         console.log("召唤人工客服")
@@ -280,7 +290,7 @@ export default function () {
     }
   }
 
-  function handleGetAutoReplyMessage(item) {
+  function handleGetAutoReplyMessage(item: LinksProps) {
     console.log(item, "点击")
     handleSend("text", item.name)
     setTimeout(() => {
@@ -331,6 +341,7 @@ export default function () {
           </Bubble>
         )
       case "auto":
+        // 标签类型错误主要是chatui没适配react18导致的
         return (
           <Bubble>
             <List>
