@@ -6,7 +6,7 @@ import { store } from "@/store/store"
 class SocketIO {
   public _event: any
   public _socket: any
-  public static instance: SocketIO
+  static #instance: SocketIO
   constructor() {
     this._event = new EventEmitter()
     this._socket = null
@@ -16,10 +16,10 @@ class SocketIO {
     if (this._socket) return this._socket
 
     const userStore = store.getState()
-    console.log(userStore, "装填")
     const { userInfo } = userStore.user
     if (!userInfo) return
     const { chatUserId, role } = userInfo
+
     const socket: SocketIOClient.Socket = io(
       `/?chatUserId=${chatUserId}&role=${role}`,
       {
@@ -39,7 +39,7 @@ class SocketIO {
       console.error("连接超时", error)
     })
     socket.on("reconnect", (error: Error) => {
-      console.error("成功重新连接", error)
+      console.error("重新连接", error)
       this._event.emit("reconnect")
     })
     socket.on("reconnect_attempt", (error: Error) => {
@@ -53,9 +53,9 @@ class SocketIO {
   }
 
   static getInstance() {
-    if (this.instance) return this.instance
-    const instance = new SocketIO()
-    return instance
+    if (this.#instance) return this.#instance
+    this.#instance = new SocketIO()
+    return this.#instance
   }
 }
 

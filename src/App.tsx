@@ -11,7 +11,7 @@ import Chat, {
 } from "@chatui/core"
 import type { QuickReplyItemProps } from "@chatui/core"
 
-import Dropzone, { UploadFile } from "./component/upload"
+import Dropzone, { UploadFile, DropzoneRef } from "./component/upload"
 
 import { PhotoProvider, PhotoView } from "react-photo-view"
 import "react-photo-view/dist/react-photo-view.css"
@@ -19,14 +19,27 @@ import "react-photo-view/dist/react-photo-view.css"
 import { useAppSelector, useAppDispatch } from "@/store/hooks"
 import {
   getToken,
+  clearToken,
   getUserInfo,
+  clearUserInfo,
   getServerInfo,
   setServerInfo,
-} from "./store/user"
+  clearServerInfo,
+} from "@/store/user"
 
 import Socket from "@/socket"
 
 import LoginModel from "@/views/login"
+
+export type LinksProps = {
+  name: string
+  type: string
+  link: string
+}
+export interface ExtendQuickReplyItemProps extends QuickReplyItemProps {
+  type: string
+  links?: LinksProps[]
+}
 
 const initialMessages = [
   {
@@ -44,17 +57,8 @@ const initialMessages = [
   },
 ]
 
-export type LinksProps = {
-  name: string
-  type: string
-  link: string
-}
-export interface ExtendQuickReplyItemProps extends QuickReplyItemProps {
-  type: string
-  links: LinksProps[]
-}
 // 默认快捷短语，可选
-const defaultQuickReplies = [
+const defaultQuickReplies: ExtendQuickReplyItemProps[] = [
   {
     icon: "message",
     name: "联系人工服务",
@@ -89,17 +93,12 @@ const defaultQuickReplies = [
 ]
 
 export default function () {
-  const useDispatch = useAppDispatch()
   let userInfo = useAppSelector(getUserInfo)
   let serverInfo = useAppSelector(getServerInfo)
   const userToken = useAppSelector(getToken)
+  const useDispatch = useAppDispatch()
+
   const [open, setOpen] = useState(true)
-
-  type DropzoneRef = {
-    open: () => void
-  }
-  const dropzoneRef = useRef<DropzoneRef>(null)
-
   useEffect(() => {
     if (userToken) {
       setOpen(false)
@@ -107,6 +106,12 @@ export default function () {
       setOpen(true)
     }
   }, [userToken])
+
+  const dropzoneRef = useRef<DropzoneRef>(null)
+
+  // 消息列表
+  const { messages, appendMsg, setTyping } = useMessages(initialMessages)
+
   useEffect(() => {
     if (userToken) {
       Socket.connectSocket()
@@ -115,8 +120,8 @@ export default function () {
       console.log(serverInfo, "客服信息")
 
       Socket._socket.on("CustomerChatData", (data: any) => {
-        console.log(data, "聊天数据")
-        console.log(data.data.friendData, "聊天数据")
+        console.log(data, "历史聊天数据")
+        if (!data.data) return
         const messages = data.data.friendData
         messages.forEach((message: any) => {
           appendMsg({
@@ -135,22 +140,30 @@ export default function () {
       })
       Socket._socket.on("AssignRobot", (data: any) => {
         console.log(data, "分配机器客服成功")
+        if (data.code === 401) {
+          console.log("分配机器客服时登录超期")
+          loginOut()
+        }
         useDispatch(setServerInfo(data.data))
       })
       Socket._socket.on("AssignServer", (data: any) => {
-        console.log(data, "分配客服成功")
-        if (data.code === 201) {
-          appendMsg({
-            type: "text",
-            content: {
-              text: data.msg,
-            },
-            user: {
-              avatar: "https://api.multiavatar.com/769b860a4aeafa7f28.png",
-            },
-            position: "left",
-          })
-          return
+        console.log(data, "分配人工客服成功")
+        // if (data.code === 201) {
+        //   appendMsg({
+        //     type: "text",
+        //     content: {
+        //       text: data.msg,
+        //     },
+        //     user: {
+        //       avatar: "https://api.multiavatar.com/769b860a4aeafa7f28.png",
+        //     },
+        //     position: "left",
+        //   })
+        //   return
+        // }
+        if (data.code === 401) {
+          console.log("分配人工客服时登录超期")
+          loginOut()
         }
         appendMsg({
           type: "text",
@@ -162,6 +175,12 @@ export default function () {
           },
           position: "left",
         })
+        // appendMsg({
+        //   type: "system",
+        //   content: {
+        //     text: "智能助理进入对话，为您服务",
+        //   },
+        // })
         useDispatch(setServerInfo(data.data))
       })
       Socket._socket.on("CustomerMessage", (data: any) => {
@@ -171,10 +190,10 @@ export default function () {
           type: message.messageType,
           content: { text: message.content },
           position:
-            userInfo?.chatUserId === message.chatUserId ? "right" : "left",
+            userInfo!.chatUserId === message.chatUserId ? "right" : "left",
           user: {
             avatar:
-              userInfo?.chatUserId === message.chatUserId
+              userInfo!.chatUserId === message.chatUserId
                 ? "https://api.multiavatar.com/af8fb6cc559fc57600.png"
                 : "https://api.multiavatar.com/769b860a4aeafa7f28.png",
           },
@@ -183,30 +202,44 @@ export default function () {
 
       // 获取客户原来的咨询信息
       setTimeout(() => {
-        console.log("触发事件", Socket._socket)
-        Socket._socket.emit("CustomerChatData", userInfo)
-        appendMsg({
-          type: "system",
-          content: {
-            text: "智能助理进入对话，为您服务",
-          },
+        console.log("触发获取历史数据事件", Socket._socket)
+        Socket._socket.emit("CustomerChatData", {
+          ...userInfo,
+          token: userToken,
         })
+        // appendMsg({
+        //   type: "system",
+        //   content: {
+        //     text: "智能助理进入对话，为您服务",
+        //   },
+        // })
         if (serverInfo && serverInfo!.role === "server") {
+          console.log("召唤人工客服")
           Socket._socket.emit("AssignServer", {
             chatUserId: userInfo!.chatUserId,
             serverUserId: serverInfo!.chatUserId,
+            token: userToken,
           })
           return
         }
-        Socket._socket.emit("AssignRobot", userInfo)
+        console.log("召唤机器客服")
+        Socket._socket.emit("AssignRobot", {
+          ...userInfo,
+          token: userToken,
+        })
       })
     }
   }, [userToken])
-  // 消息列表
-  const { messages, appendMsg, setTyping } = useMessages(initialMessages)
+
+  function loginOut() {
+    useDispatch(clearToken())
+    useDispatch(clearUserInfo())
+    useDispatch(clearServerInfo())
+  }
 
   // 发送回调
   function handleSend(type: string, val: any) {
+    // 文字消息
     if (type === "text" && val.trim()) {
       const userMessage = {
         chatUserId: userInfo!.chatUserId,
@@ -217,11 +250,11 @@ export default function () {
         sendTime: new Date().valueOf(),
         token: userToken,
       }
-      console.log(userMessage, "将要发送的消息")
       Socket._socket.emit("CustomerMessage", userMessage)
 
       setTyping(true)
     }
+    // 自动回复的消息
     if (type === "auto") {
       const userMessage = {
         chatUserId: serverInfo!.chatUserId,
@@ -237,9 +270,10 @@ export default function () {
 
       setTyping(true)
     }
+    // 链接类型的消息
     if (type === "url") {
       const userMessage = {
-        chatUserId: userInfo!.chatUserId,
+        chatUserId: serverInfo!.chatUserId,
         chatUserFriendId: userInfo!.chatUserId,
         sendRole: "server",
         content: JSON.stringify(val),
@@ -254,19 +288,28 @@ export default function () {
     }
   }
 
-  const handlePasteImg = useCallback((e: any) => {
-    console.log(e, 123)
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(null)
-      }, 300)
-    })
+  const handlePasteImg = useCallback((file: File) => {
+    console.log(file, "复制粘贴的文件")
+    if (dropzoneRef.current) {
+      dropzoneRef.current
+        .uploadFilePromise(file)
+        .then((res) => {
+          console.log(res, "上传")
+          if (res) {
+            handleFileUploadSuccess(res)
+          } else {
+            console.log("上传失败")
+          }
+        })
+        .catch((err) => {
+          console.log("上传失败", err)
+        })
+    }
   }, [])
 
   // 快捷短语回调，可根据 item 数据做出不同的操作
   function handleQuickReplyClick(item: QuickReplyItemProps) {
-    console.log(item, "快捷短语回调")
-    const { type, links } = item as ExtendQuickReplyItemProps
+    const { type } = item as ExtendQuickReplyItemProps
     switch (type) {
       case "call-server":
         console.log("召唤人工客服")
@@ -274,6 +317,7 @@ export default function () {
         Socket._socket.emit("AssignServer", {
           chatUserId: userInfo!.chatUserId,
           serverUserId: "",
+          token: userToken,
         })
         break
       case "auto-reply":

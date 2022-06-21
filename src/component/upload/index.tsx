@@ -16,6 +16,7 @@ export declare type DropzoneProps = {
 
 export declare type DropzoneRef = {
   open: () => void
+  uploadFilePromise: (params: File) => Promise<UploadFile>
 }
 
 const Dropzone = forwardRef(
@@ -70,6 +71,7 @@ const Dropzone = forwardRef(
 
     useImperativeHandle(ref, () => ({
       open,
+      uploadFilePromise,
     }))
 
     return (

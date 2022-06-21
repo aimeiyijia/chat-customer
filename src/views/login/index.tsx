@@ -1,22 +1,16 @@
 import React, { useState } from "react"
 import styled, { css } from "styled-components"
-import {
-  Icons,
-  ToastContainer,
-  toast,
-  cssTransition,
-  Slide,
-} from "react-toastify"
+import { ToastContainer, toast, cssTransition } from "react-toastify"
 import "react-toastify/ReactToastify.min.css"
 import "font-awesome/less/font-awesome.less"
 import "react-fontawesome"
 import "animate.css"
-import { processReturn } from "@/http/utils"
-import { getRandomName } from "@/utils"
 
 import { useAppSelector, useAppDispatch } from "@/store/hooks"
 import { setToken, clearToken, setUserInfo, clearUserInfo } from "@/store/user"
 
+import { getRandomName } from "@/utils"
+import { processReturn } from "@/http/utils"
 import { login } from "@/api"
 
 const sc = styled

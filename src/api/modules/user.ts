@@ -1,16 +1,6 @@
 import fetch from "@/http"
-
 /**
- * 客服注册
- * @param params
- */
-export const register = (params: LoginParams) => {
-  return fetch.post(`/broke/chatUser/register`, {
-    ...params,
-  })
-}
-/**
- * 客户，客服登录
+ * 客户
  * @param params
  */
 export const login = (params: LoginParams) => {
