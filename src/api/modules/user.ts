@@ -4,7 +4,7 @@ import fetch from "@/http"
  * @param params
  */
 export const login = (params: LoginParams) => {
-  return fetch.post(`/broke/chatUser/login`, {
+  return fetch.post(`/auth/login`, {
     ...params,
   })
 }

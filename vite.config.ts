@@ -20,13 +20,13 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/api": {
-        target: "http://192.168.2.74:8887",
+        target: "http://localhost:3000",
         ws: true,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "/socket.io": {
-        target: "http://192.168.2.74:8889",
+        target: "http://localhost:3000",
         ws: true,
       },
     },
